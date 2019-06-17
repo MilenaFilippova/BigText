@@ -23,7 +23,7 @@ void countWords(istream& in, AllWords& words)
 		{
 			if(!(isalpha(s[s.length()-1])) && s.length()>1 )	//проверка последнего символа строки на букву и переписывание слова
 			{	
-				s=s.substr(0,s.length()-1);
+				s=s.substr(0,s.length()-1);	//обрежем лишние знаки
 			}
 			if(!(isalpha(s[0])) && s.length()>1 )	//проверка первого символа строки на букву и переписывание слова
 			{	
