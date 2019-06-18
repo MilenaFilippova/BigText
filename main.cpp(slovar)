@@ -1,56 +1,60 @@
-#ifndef FUNC_H_INCLUDED
-#define FUNC_H_INCLUDED
-#include <map>
-#include <locale.h>
+#include <iostream>
+#include <fstream>
 #include <string>
-#include <cctype>
 #include <algorithm>
+#include <map>
+#include <vector>
+#include <iterator>
+#include <locale.h>
+#include "func.h"
 
 using namespace std;
 
-typedef map<string, int> AllWords;	//ключ-слово, а связанное с ней int — это число раз, которое это слово встретилось.
-
-
-void countWords(istream& in,istream& slovar, AllWords& words)
-{	string s="";
-	string keyslovo="";
-	cout<<"Исходный текст:"<<endl<<endl;
-
-	while(slovar>>keyslovo)
+template<template <typename> class P = less >
+struct compare_pair_second 
+{
+	template<class T1, class T2> bool operator()(const pair<T1, T2>& left, const pair<T1, T2>& right) 
 	{
-		//cout<<"keyslovo:"<<keyslovo<<endl;
-		
-		while (in>>s)		//если еще нет такого слова создаем новое  и прибавлем,если есть прибавляем
-		{
-			transform(s.begin(), s.end(), s.begin(), ::tolower);	//приведем к нижнему регистру все слова
-			while(!(isalpha(s[0]))  || !(isalpha(s[s.length()-1])) )	//пока не избавимся от всех лишних знаков вокруг слова
-			{
-				if(!(isalpha(s[s.length()-1])) && s.length()>1 )	//проверка последнего символа строки на букву и переписывание слова
-				{	
-					s=s.substr(0,s.length()-1);
+		return P<T2>()(left.second, right.second);
+    	}
+};
 
-				}
-				if(!(isalpha(s[0])) && s.length()>1 )	//проверка первого символа строки на букву и переписывание слова
-				{	
-					s=s.substr(1,s.length());
-				}
-			}
-			if(keyslovo==s)
-			{
-				words[keyslovo]++;		//счетчик повторений по ключу
-			}
-			else
-			{
-				words[keyslovo];	//создаем пустой ключ
-			}
-			
-		}
-		in.clear();//переставить указатель на начало
-		in.seekg(0);
-			
 
+int main(void)
+{
+
+	setlocale(LC_ALL,"Russian");
+	ifstream in("D:\\test2.txt");
+	ifstream slovar("D:\\slovar.txt");
+	//vector<int> v;
+	if (!in.is_open())
+	{ 
+		cout<< "Невозможно открыть файл с текстом . "<<endl; 
+		return 1; 
+	}  
+	if (!slovar.is_open())
+	{ 
+		cout<< "Невозможно открыть файл со словарем. "<<endl; 
+		return 1; 
+	}  
+	cout<<"Файл открыт"<<endl;
+
+	AllWords w;		//map слов и их количества
+	countWords(in,slovar ,w);	//вызов функции с подсчетом слов
+
+	vector<pair<string, int> > v;
+    	copy(w.begin(), w.end(), back_inserter(v));
+	sort(v.begin(), v.end(), compare_pair_second<less>());	//сортировка по возрастанию
+
+
+   	 for(int i = 0; i < v.size(); ++i)
+	{
+      		 cout<<"Слово<<"<<v[i].first << ">>. Количество повторений:  "<< v[i].second << endl;
 	}
-			
-}
 
-#endif
+	in.close();//закроем поток
+	slovar.close();
+	
+	system("pause");
+	return 0;
+}
